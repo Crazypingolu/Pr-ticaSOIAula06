@@ -1,5 +1,13 @@
 package controller;
 
-public class ClasseThreads {
+public class ClasseThreads extends Thread {
+    // Definir variáveis privadas:
+    private int idCavaleiro;
 
+
+
+    @Override
+    public void run(){
+
+    }
 }
