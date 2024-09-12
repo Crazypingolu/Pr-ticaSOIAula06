@@ -20,71 +20,58 @@ public class ClasseThreads extends Thread {
         this.distMetro = distMetro;
         this.portas = portas;
     }
+    // Método escolher porta:
+    public void escolherPorta(int id, int[] porta) {
+        int cto = 0;
+        Random r = new Random();
+        boolean flag = true;
+        int val;
+        while(flag == true){
+            val = r.nextInt(0,3);
+            if(porta[val] != -1){
+                System.out.println("O cavaleiro #" + idCavaleiro + " escolheu a porta: " + val);
+                if (porta[val] == 1){
+                    System.out.println("Ele Sobreviveu!!");
+                } else {
+                    System.out.println("F, ele foi de comes e bebes");
+                }
+                porta[val] = -1;
+                flag = false;
+            } else {
+                for (int i = 0; i < porta.length; i++) {
+                    if(porta[i] == -1)
+                        cto++;
+                }
+            }
+        }
+    }
     @Override
     public void run(){
         Random rand = new Random();
-        int ctoTocha = 50;
-        int ctoPedra = 50;
         // Loop do caminho:
-        for (int i = 0; i <= distMetro; i += (rand.nextInt(2) + 2)) { // i + rand : aumenta de forma aleatória
+        for (int i = 0; i < distMetro; i += (rand.nextInt(2,4))) { // i + rand : aumenta de forma aleatória
             try {
                 sleep(50);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            // tenta pegar a tocha
-            if(i >= 500 && tocha == 0){
-                try {
-                    semaforo.acquire();
-                    if( tocha == 0 )
-                        tocha = idCavaleiro;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    semaforo.release();
-                }
-            }
+            // tenta pegar a tocha:
             // Tenta pegar a pedra:
-            if(i >= 1500 && pedra == 0){
-                try {
-                    semaforo.acquire();
-                    if( pedra == 0 && tocha != idCavaleiro )
-                        pedra = idCavaleiro;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    semaforo.release();
-                }
-            }  
             // Cavaleiro x tem a tocha:
-            if (tocha == idCavaleiro && ctoTocha > 0){
-                i += 2;
-                ctoTocha -= 2;
-            }
             // Cavaleiro x tem a pedra:
-            if (pedra == idCavaleiro && ctoPedra > 0){
-                i += 2;
-                ctoPedra -= 2;
-            }
             // mostra quantos metros totais ele percorreu:
             if (i < distMetro)
-                System.out.println("O cavaleiro #" + idCavaleiro + " percorreu: " + i);
+                System.out.println("O cavaleiro #" + idCavaleiro + " percorreu: " + i + "m");
         }
+        System.out.println("#" + idCavaleiro + " Chegou nas portas!");
         // Chegou nas portas:
-        boolean flag = true;
-        int opc;
-        while (flag == true){
-            opc = rand.nextInt(3);
-            if(portas[opc] != -1){
-                if (portas[opc] == 1){
-                    System.out.println("O cavaleiro #" + idCavaleiro + " escolheu a porta: " + opc + " e Sobreviveu!");
-                    portas[opc] = -1;
-                } else {
-                    System.out.println("O cavaleiro #" + idCavaleiro + " escolheu a porta: " + opc + " e foi de comes e bebes...");
-                    portas[opc] = -1;
-                }
-                flag = false;
-            }
+        try {
+            semaforo.acquire();
+            escolherPorta(idCavaleiro, portas);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            semaforo.release();
         }
     }
 }
